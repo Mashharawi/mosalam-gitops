@@ -1,4 +1,3 @@
-cat > app-source/backend/package.json <<'EOF'
 {
   "name": "backend",
   "version": "1.0.0",
@@ -16,4 +15,3 @@ cat > app-source/backend/package.json <<'EOF'
     "redis": "^4.7.0"
   }
 }
-EOF

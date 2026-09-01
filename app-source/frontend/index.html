@@ -1,4 +1,3 @@
-cat > app-source/frontend/index.html <<'HTMLEOF'
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
@@ -167,9 +166,3 @@ cat > app-source/frontend/index.html <<'HTMLEOF'
     </script>
 </body>
 </html>
-HTMLEOF
-
-cat > app-source/frontend/Dockerfile <<'EOF'
-FROM nginx:alpine
-COPY index.html /usr/share/nginx/html/index.html
-EOF

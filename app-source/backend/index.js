@@ -1,4 +1,3 @@
-cat > app-source/backend/index.js <<'EOF'
 const http = require('http');
 const { Pool } = require('pg');
 const { createClient } = require('redis');
@@ -139,4 +138,3 @@ server.listen(PORT, () => {
     waitForDb();
     waitForRedis();
 });
-EOF
