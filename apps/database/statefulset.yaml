@@ -26,6 +26,8 @@ spec:
             - name: postgres-storage
               mountPath: /var/lib/postgresql/data
               subPath: postgres
+            - name: init-sql
+              mountPath: /docker-entrypoint-initdb.d
           resources:
             requests:
               cpu: "250m"
@@ -33,6 +35,10 @@ spec:
             limits:
               cpu: "500m"
               memory: "512Mi"
+      volumes:
+        - name: init-sql
+          configMap:
+            name: postgres-init-sql
   volumeClaimTemplates:
     - metadata:
         name: postgres-storage
