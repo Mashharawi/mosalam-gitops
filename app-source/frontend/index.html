@@ -1,0 +1,175 @@
+cat > app-source/frontend/index.html <<'HTMLEOF'
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Infrastructure Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen">
+
+    <div class="container mx-auto p-6">
+        <header class="flex justify-between items-center mb-8 border-b border-slate-800 pb-4">
+            <div>
+                <h1 class="text-3xl font-bold tracking-tight text-teal-400">Smart Asset Manager</h1>
+                <p class="text-slate-400 text-sm">Enterprise DevOps Infrastructure</p>
+            </div>
+            <div id="api-status" class="flex items-center space-x-2 bg-slate-800 px-4 py-2 rounded-full border border-slate-700">
+                <span class="relative flex h-3 w-3">
+                    <span id="status-ping" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                    <span id="status-dot" class="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
+                </span>
+                <span id="status-text" class="text-xs font-mono text-slate-300">Checking API...</span>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-xl h-fit">
+                <h2 class="text-xl font-semibold mb-4 text-slate-200">Register New Asset</h2>
+                <form id="asset-form" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-mono text-slate-400 mb-1 uppercase">Asset Name</label>
+                        <input type="text" id="asset-name" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-teal-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-mono text-slate-400 mb-1 uppercase">Department</label>
+                        <input type="text" id="asset-department" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-teal-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-mono text-slate-400 mb-1 uppercase">Operational Status</label>
+                        <select id="asset-status" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-teal-500">
+                            <option value="Active">Active</option>
+                            <option value="Maintenance">Maintenance</option>
+                            <option value="Decommissioned">Decommissioned</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="w-full bg-teal-600 hover:bg-teal-500 text-white font-medium py-2.5 px-4 rounded-lg transition-colors">
+                        Deploy Asset
+                    </button>
+                </form>
+            </div>
+
+            <div class="lg:col-span-2 bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-xl">
+                <h2 class="text-xl font-semibold mb-4 text-slate-200">Active Infrastructure Assets</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-slate-700 text-xs font-mono uppercase text-slate-400">
+                                <th class="py-3 px-4">ID</th>
+                                <th class="py-3 px-4">Asset Name</th>
+                                <th class="py-3 px-4">Department</th>
+                                <th class="py-3 px-4">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="assets-table-body" class="divide-y divide-slate-700/50 text-sm">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api/assets';
+        const HEALTH_URL = '/api/health';
+        const API_KEY = 'CHANGE_ME_TEMP_KEY_123';
+
+        async function checkHealth() {
+            const dot = document.getElementById('status-dot');
+            const ping = document.getElementById('status-ping');
+            const text = document.getElementById('status-text');
+
+            try {
+                const res = await fetch(HEALTH_URL);
+                if(res.ok) {
+                    dot.className = "relative inline-flex rounded-full h-3 w-3 bg-emerald-500";
+                    ping.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75";
+                    text.innerText = "System Online";
+                    text.className = "text-xs font-mono text-emerald-400";
+                } else {
+                    throw new Error();
+                }
+            } catch {
+                dot.className = "relative inline-flex rounded-full h-3 w-3 bg-rose-500";
+                ping.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75";
+                text.innerText = "System Degradation (Crash)";
+                text.className = "text-xs font-mono text-rose-400";
+            }
+        }
+
+        async function fetchAssets() {
+            try {
+                const res = await fetch(API_URL, {
+                    headers: { 'X-API-Key': API_KEY }
+                });
+                const data = await res.json();
+                const tbody = document.getElementById('assets-table-body');
+                tbody.innerHTML = '';
+
+                data.forEach(asset => {
+                    let statusClass = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+                    if (asset.status === 'Maintenance') statusClass = 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+                    if (asset.status === 'Decommissioned') statusClass = 'bg-rose-500/10 text-rose-400 border-rose-500/20';
+
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-700/30 transition-colors">
+                            <td class="py-3 px-4 font-mono text-slate-400">#${asset.id}</td>
+                            <td class="py-3 px-4 font-medium text-slate-200">${asset.name}</td>
+                            <td class="py-3 px-4 text-slate-300">${asset.department}</td>
+                            <td class="py-3 px-4">
+                                <span class="px-2.5 py-1 text-xs font-medium rounded-full border ${statusClass}">
+                                    ${asset.status}
+                                </span>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch (err) {
+                console.error("Failed to fetch assets:", err);
+            }
+        }
+
+        document.getElementById('asset-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('asset-name').value;
+            const department = document.getElementById('asset-department').value;
+            const status = document.getElementById('asset-status').value;
+
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-Key': API_KEY
+                    },
+                    body: JSON.stringify({ name, department, status })
+                });
+
+                if (res.ok) {
+                    document.getElementById('asset-form').reset();
+                    fetchAssets();
+                }
+            } catch (err) {
+                console.error("Failed to save asset:", err);
+            }
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            checkHealth();
+            fetchAssets();
+            setInterval(checkHealth, 5000);
+            setInterval(fetchAssets, 10000);
+        });
+    </script>
+</body>
+</html>
+HTMLEOF
+
+cat > app-source/frontend/Dockerfile <<'EOF'
+FROM nginx:alpine
+COPY index.html /usr/share/nginx/html/index.html
+EOF
