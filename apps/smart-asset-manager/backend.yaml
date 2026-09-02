@@ -32,7 +32,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: master212/mosalam-backend:v1
+          image: master212/mosalam-backend:v2
           ports:
             - containerPort: 3000
           envFrom:
