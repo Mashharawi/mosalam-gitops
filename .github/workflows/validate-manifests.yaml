@@ -15,7 +15,7 @@ jobs:
         run: pip install yamllint
 
       - name: Lint all YAML files in apps/
-        run: yamllint -d "{extends: default, rules: {line-length: disable, document-start: disable, truthy: disable}}" apps/
+        run: yamllint -c .yamllint.yaml apps/
 
   kubeconform:
     name: Kubernetes Schema Validation
