@@ -64,7 +64,7 @@ function readJsonBody(req) {
 const server = http.createServer(async (req, res) => {
     if (req.url === '/api/health' && req.method === 'GET') {
         res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ status: 'UP', message: 'Backend is healthy', version: 'v2' }));
+        res.end(JSON.stringify({ status: 'UP', message: 'Backend is healthy', version: 'v3' }));
         return;
     }
 
