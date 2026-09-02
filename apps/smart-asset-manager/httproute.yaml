@@ -15,8 +15,12 @@ spec:
             type: PathPrefix
             value: /api
       backendRefs:
-        - name: backend
+        - name: backend-stable
           port: 3000
+          weight: 100
+        - name: backend-canary
+          port: 3000
+          weight: 0
     - matches:
         - path:
             type: PathPrefix
