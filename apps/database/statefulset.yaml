@@ -44,7 +44,7 @@ spec:
         name: postgres-storage
       spec:
         accessModes: ["ReadWriteOnce"]
-        storageClassName: local-path
+        storageClassName: longhorn
         resources:
           requests:
             storage: 2Gi
