@@ -4,7 +4,7 @@ metadata:
   name: redis
   namespace: cache
 spec:
-  replicas: 1
+  replicas: "one"
   selector:
     matchLabels:
       app: redis
